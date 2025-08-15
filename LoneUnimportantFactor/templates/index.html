@@ -1,0 +1,612 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trading Automation Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --success-color: #27ae60;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+        }
+        
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar-custom {
+            background-color: var(--primary-color);
+        }
+        
+        .card-custom {
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, var(--secondary-color), #5dade2);
+            color: white;
+        }
+        
+        .btn-custom {
+            border-radius: 20px;
+            padding: 10px 25px;
+        }
+        
+        .trading-status {
+            position: fixed;
+            top: 70px;
+            right: 20px;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i class="fas fa-chart-line me-2"></i>
+                Trading Automation Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dashboard">Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#strategies">Strategies</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#signals">Signals</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#trades">Trades</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#brokers">Brokers</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Trading Status Toggle -->
+    <div class="trading-status">
+        <div class="card card-custom">
+            <div class="card-body text-center">
+                <h6 class="card-title">Trading Mode</h6>
+                <div class="form-check form-switch d-flex justify-content-center">
+                    <input class="form-check-input" type="checkbox" id="tradingModeSwitch" checked>
+                    <label class="form-check-label ms-2" for="tradingModeSwitch" id="tradingModeLabel">
+                        Paper Trading
+                    </label>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container mt-4">
+        <!-- Dashboard Section -->
+        <div id="dashboard" class="section">
+            <div class="row">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card card-custom stat-card">
+                        <div class="card-body text-center">
+                            <i class="fas fa-cogs fa-2x mb-2"></i>
+                            <h4 id="activeStrategies">0</h4>
+                            <p class="mb-0">Active Strategies</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card card-custom stat-card" style="background: linear-gradient(135deg, var(--success-color), #58d68d);">
+                        <div class="card-body text-center">
+                            <i class="fas fa-signal fa-2x mb-2"></i>
+                            <h4 id="todaySignals">0</h4>
+                            <p class="mb-0">Today's Signals</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card card-custom stat-card" style="background: linear-gradient(135deg, var(--warning-color), #f8c471);">
+                        <div class="card-body text-center">
+                            <i class="fas fa-exchange-alt fa-2x mb-2"></i>
+                            <h4 id="totalTrades">0</h4>
+                            <p class="mb-0">Total Trades</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card card-custom stat-card" style="background: linear-gradient(135deg, var(--danger-color), #ec7063);">
+                        <div class="card-body text-center">
+                            <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                            <h4 id="pnl">₹0</h4>
+                            <p class="mb-0">Today's P&L</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card card-custom">
+                        <div class="card-header">
+                            <h5 class="mb-0">Quick Actions</h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-primary btn-custom w-100" onclick="showCreateStrategy()">
+                                        <i class="fas fa-plus me-2"></i>Create Strategy
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-success btn-custom w-100" onclick="showBrokerConfig()">
+                                        <i class="fas fa-link me-2"></i>Configure Broker
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-warning btn-custom w-100" onclick="showSignals()">
+                                        <i class="fas fa-bell me-2"></i>View Signals
+                                    </button>
+                                </div>
+                                <div class="col-md-3 mb-2">
+                                    <button class="btn btn-info btn-custom w-100" onclick="showTrades()">
+                                        <i class="fas fa-history me-2"></i>Trade History
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Strategies Section -->
+        <div id="strategies" class="section" style="display: none;">
+            <div class="card card-custom">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Trading Strategies</h5>
+                    <button class="btn btn-primary btn-sm" onclick="showCreateStrategy()">
+                        <i class="fas fa-plus me-1"></i>New Strategy
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="strategiesTable">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Symbol</th>
+                                    <th>Exchange</th>
+                                    <th>Signal Source</th>
+                                    <th>Position Size</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Strategies will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signals Section -->
+        <div id="signals" class="section" style="display: none;">
+            <div class="card card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">Recent Signals</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="signalsTable">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Symbol</th>
+                                    <th>Signal</th>
+                                    <th>Price</th>
+                                    <th>Source</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Signals will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Trades Section -->
+        <div id="trades" class="section" style="display: none;">
+            <div class="card card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">Trade History</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover" id="tradesTable">
+                            <thead>
+                                <tr>
+                                    <th>Time</th>
+                                    <th>Symbol</th>
+                                    <th>Side</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Broker</th>
+                                    <th>Status</th>
+                                    <th>Mode</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Trades will be loaded here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Brokers Section -->
+        <div id="brokers" class="section" style="display: none;">
+            <div class="card card-custom">
+                <div class="card-header">
+                    <h5 class="mb-0">Broker Configurations</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                                    <h6>Angel One</h6>
+                                    <span class="badge bg-secondary">Not Configured</span>
+                                    <br>
+                                    <button class="btn btn-sm btn-primary mt-2" onclick="configureBroker('angel_one')">Configure</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                                    <h6>Upstox</h6>
+                                    <span class="badge bg-secondary">Not Configured</span>
+                                    <br>
+                                    <button class="btn btn-sm btn-primary mt-2" onclick="configureBroker('upstox')">Configure</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <div class="card">
+                                <div class="card-body text-center">
+                                    <i class="fas fa-building fa-2x text-primary mb-2"></i>
+                                    <h6>Zerodha</h6>
+                                    <span class="badge bg-secondary">Not Configured</span>
+                                    <br>
+                                    <button class="btn btn-sm btn-primary mt-2" onclick="configureBroker('zerodha')">Configure</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Strategy Modal -->
+    <div class="modal fade" id="createStrategyModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create New Strategy</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="strategyForm">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Strategy Name</label>
+                                    <input type="text" class="form-control" name="name" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Exchange</label>
+                                    <select class="form-control" name="exchange" required>
+                                        <option value="">Select Exchange</option>
+                                        <option value="NSE">NSE</option>
+                                        <option value="BSE">BSE</option>
+                                        <option value="MCX">MCX</option>
+                                        <option value="NFO">NFO (F&O)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Instrument Type</label>
+                                    <select class="form-control" name="instrument_type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="EQ">Equity</option>
+                                        <option value="FUT">Futures</option>
+                                        <option value="CE">Call Options</option>
+                                        <option value="PE">Put Options</option>
+                                        <option value="COMMODITY">Commodity</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Symbol</label>
+                                    <input type="text" class="form-control" name="symbol" placeholder="e.g., RELIANCE, NIFTY" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Signal Source</label>
+                                    <select class="form-control" name="signal_source" required>
+                                        <option value="">Select Source</option>
+                                        <option value="chartink">Chartink</option>
+                                        <option value="tradingview">TradingView</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Position Size Type</label>
+                                    <select class="form-control" name="position_size_type" required>
+                                        <option value="">Select Type</option>
+                                        <option value="quantity">Quantity</option>
+                                        <option value="amount">Amount (₹)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Position Size</label>
+                                    <input type="number" class="form-control" name="position_size" required>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Order Type</label>
+                                    <select class="form-control" name="order_type" required>
+                                        <option value="">Select Order Type</option>
+                                        <option value="MARKET">Market</option>
+                                        <option value="LIMIT">Limit</option>
+                                        <option value="SL">Stop Loss</option>
+                                        <option value="SL-M">Stop Loss Market</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Product Type</label>
+                                    <select class="form-control" name="product_type" required>
+                                        <option value="">Select Product Type</option>
+                                        <option value="MIS">MIS (Intraday)</option>
+                                        <option value="CNC">CNC (Delivery)</option>
+                                        <option value="NRML">NRML (Normal)</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Stop Loss (%)</label>
+                                    <input type="number" class="form-control" name="stop_loss" step="0.01" min="0">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Target (%)</label>
+                                    <input type="number" class="form-control" name="target" step="0.01" min="0">
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="mb-3">
+                                    <label class="form-label">Trailing SL (%)</label>
+                                    <input type="number" class="form-control" name="trailing_stop_loss" step="0.01" min="0">
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Entry Condition</label>
+                                    <textarea class="form-control" name="entry_condition" rows="2" placeholder="Define entry conditions..."></textarea>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label class="form-label">Exit Condition</label>
+                                    <textarea class="form-control" name="exit_condition" rows="2" placeholder="Define exit conditions..."></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="createStrategy()">Create Strategy</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Broker Configuration Modal -->
+    <div class="modal fade" id="brokerConfigModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Configure Broker</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="brokerForm">
+                        <input type="hidden" name="broker_name" id="brokerName">
+                        <div class="mb-3">
+                            <label class="form-label">API Key</label>
+                            <input type="text" class="form-control" name="api_key" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">API Secret</label>
+                            <input type="password" class="form-control" name="api_secret" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Access Token (if required)</label>
+                            <input type="text" class="form-control" name="access_token">
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="is_active" id="isActive">
+                            <label class="form-check-label" for="isActive">
+                                Activate this broker
+                            </label>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" onclick="saveBrokerConfig()">Save Configuration</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Trading mode toggle
+        document.getElementById('tradingModeSwitch').addEventListener('change', function() {
+            const isChecked = this.checked;
+            const mode = isChecked ? 'paper' : 'live';
+            const label = document.getElementById('tradingModeLabel');
+            
+            label.textContent = isChecked ? 'Paper Trading' : 'Live Trading';
+            label.className = `form-check-label ms-2 ${isChecked ? 'text-warning' : 'text-success'}`;
+            
+            // Send mode change to backend
+            fetch('/api/toggle_trading_mode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({mode: mode})
+            });
+        });
+
+        // Navigation functions
+        function showSection(sectionId) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.style.display = 'none';
+            });
+            document.getElementById(sectionId).style.display = 'block';
+        }
+
+        function showCreateStrategy() {
+            new bootstrap.Modal(document.getElementById('createStrategyModal')).show();
+        }
+
+        function showBrokerConfig() {
+            showSection('brokers');
+        }
+
+        function showSignals() {
+            showSection('signals');
+        }
+
+        function showTrades() {
+            showSection('trades');
+        }
+
+        // Strategy creation
+        function createStrategy() {
+            const form = document.getElementById('strategyForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            fetch('/api/create_strategy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('createStrategyModal')).hide();
+                    form.reset();
+                    alert('Strategy created successfully!');
+                    loadStrategies();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error creating strategy');
+            });
+        }
+
+        // Broker configuration
+        function configureBroker(brokerName) {
+            document.getElementById('brokerName').value = brokerName;
+            document.querySelector('#brokerConfigModal .modal-title').textContent = `Configure ${brokerName.replace('_', ' ').toUpperCase()}`;
+            new bootstrap.Modal(document.getElementById('brokerConfigModal')).show();
+        }
+
+        function saveBrokerConfig() {
+            const form = document.getElementById('brokerForm');
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            data.is_active = form.is_active.checked;
+
+            fetch('/api/broker_config', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    bootstrap.Modal.getInstance(document.getElementById('brokerConfigModal')).hide();
+                    form.reset();
+                    alert('Broker configured successfully!');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error configuring broker');
+            });
+        }
+
+        // Load dashboard data
+        function loadDashboard() {
+            // Load statistics and update dashboard
+            // This would be implemented to fetch real data
+        }
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            loadDashboard();
+        });
+    </script>
+</body>
+</html>

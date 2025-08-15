@@ -1,0 +1,247 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Strategy Management - Trading Platform</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .form-container {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        
+        .btn-success {
+            background: #27ae60;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Strategy Management</h1>
+            <button class="btn btn-primary" onclick="location.href='/'">← Back to Dashboard</button>
+        </div>
+        
+        <div class="form-container">
+            <h3>Create New Strategy</h3>
+            <form id="strategyForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="name">Strategy Name</label>
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exchange">Exchange</label>
+                        <select id="exchange" name="exchange" required>
+                            <option value="">Select Exchange</option>
+                            <option value="NSE">NSE</option>
+                            <option value="BSE">BSE</option>
+                            <option value="MCX">MCX</option>
+                            <option value="NFO">NFO (F&O)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="instrument_type">Instrument Type</label>
+                        <select id="instrument_type" name="instrument_type" required>
+                            <option value="">Select Type</option>
+                            <option value="EQ">Equity</option>
+                            <option value="FUT">Future</option>
+                            <option value="CE">Call Option</option>
+                            <option value="PE">Put Option</option>
+                            <option value="COMMODITY">Commodity</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="symbol">Symbol</label>
+                        <input type="text" id="symbol" name="symbol" required placeholder="e.g., RELIANCE, NIFTY">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="signal_source">Signal Source</label>
+                        <select id="signal_source" name="signal_source" required>
+                            <option value="">Select Source</option>
+                            <option value="chartink">Chartink</option>
+                            <option value="tradingview">TradingView</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="position_size_type">Position Size Type</label>
+                        <select id="position_size_type" name="position_size_type" required>
+                            <option value="">Select Type</option>
+                            <option value="quantity">Fixed Quantity</option>
+                            <option value="amount">Fixed Amount</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="position_size">Position Size</label>
+                        <input type="number" id="position_size" name="position_size" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="order_type">Order Type</label>
+                        <select id="order_type" name="order_type" required>
+                            <option value="">Select Type</option>
+                            <option value="MARKET">Market</option>
+                            <option value="LIMIT">Limit</option>
+                            <option value="SL">Stop Loss</option>
+                            <option value="SL-M">Stop Loss Market</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="product_type">Product Type</label>
+                        <select id="product_type" name="product_type" required>
+                            <option value="">Select Type</option>
+                            <option value="MIS">Intraday</option>
+                            <option value="CNC">Delivery</option>
+                            <option value="NRML">Normal</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="stop_loss">Stop Loss (%)</label>
+                        <input type="number" id="stop_loss" name="stop_loss" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="target">Target (%)</label>
+                        <input type="number" id="target" name="target" step="0.1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="trailing_stop_loss">Trailing Stop Loss (%)</label>
+                        <input type="number" id="trailing_stop_loss" name="trailing_stop_loss" step="0.1">
+                    </div>
+                </div>
+                
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="entry_condition">Entry Condition</label>
+                        <textarea id="entry_condition" name="entry_condition" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="exit_condition">Exit Condition</label>
+                        <textarea id="exit_condition" name="exit_condition" rows="3"></textarea>
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn btn-success">Create Strategy</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('strategyForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData.entries());
+            
+            fetch('/api/create_strategy', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.status === 'success') {
+                    alert('Strategy created successfully!');
+                    this.reset();
+                } else {
+                    alert('Error creating strategy: ' + result.message);
+                }
+            })
+            .catch(error => {
+                alert('Error: ' + error.message);
+            });
+        });
+    </script>
+</body>
+</html>
